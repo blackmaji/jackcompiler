@@ -12,19 +12,19 @@ public class Token {
     public String toString() {
         var type = this.type.toString();
         if (type.equals("NUMBER"))
-            type =  "intConst";
+            type =  "NUMBER";
 
         if (type.equals("STRING"))
-            type =  "stringConst";
+            type =  "STRING";
 
         if (type.equals("IDENT"))
-            type =  "identifier";
+            type =  "IDENT";
 
         if (TokenType.isSymbol(lexeme.charAt(0)))
-            type = "symbol";
+            type = this.type.toString();
 
         if (TokenType.isKeyword(this.type) )
-            type = "keyword";
+            type = this.type.toString();
     
 
         return "<"+ type +">" + lexeme + "</"+ type + ">";
