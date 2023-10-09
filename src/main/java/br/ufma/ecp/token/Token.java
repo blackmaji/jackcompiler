@@ -14,13 +14,13 @@ public class Token {
     public String toString() {
         var type = this.type.toString();
         if (type.equals("NUMBER"))
-            type =  "NUMBER";
+            type =  "integerConstant";
 
         if (type.equals("STRING"))
-            type =  "STRING";
+            type =  "stringConstant";
 
         if (type.equals("IDENT"))
-            type =  "IDENT";
+            type =  "identifier";
 
         if (TokenType.isSymbol(lexeme.charAt(0)))
             type = this.type.toString();
