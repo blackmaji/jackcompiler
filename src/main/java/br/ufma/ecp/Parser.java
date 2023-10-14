@@ -1,5 +1,7 @@
 package br.ufma.ecp;
 
+import javax.swing.text.Segment;
+
 import br.ufma.ecp.token.Token;
 import br.ufma.ecp.token.TokenType;
 
@@ -24,7 +26,6 @@ public class Parser {
 
 
    public void parse () {
-        
     }
 
     // funções auxiliares
@@ -109,5 +110,26 @@ public class Parser {
     
         printNonTerminal("/term");
       }
+    
+    void parseLet() {
+
+        printNonTerminal("letStatement");
+        expectPeek(TokenType.LET);
+        expectPeek(TokenType.IDENT);
+
+        if (peekTokenIs(TokenType.LBRACKET)) { // array
+            expectPeek(TokenType.LBRACKET);
+    
+            expectPeek(TokenType.RBRACKET);
+
+        }
+
+        expectPeek(TokenType.EQ);
+        expectPeek(TokenType.NUMBER);
+
+        expectPeek(TokenType.SEMICOLON);
+        printNonTerminal("/letStatement");
+    }
+
 
 }

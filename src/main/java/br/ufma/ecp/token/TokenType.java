@@ -43,7 +43,8 @@ public enum TokenType {
                 WHILE,
                 IF,
                 CLASS,
-                CONSTRUCTOR
+                CONSTRUCTOR,
+                LET
             );
             return keywords.contains(type);
     }
