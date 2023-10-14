@@ -110,8 +110,30 @@ public class Parser {
     
         printNonTerminal("/term");
       }
+
+      int parseExpressionList() {
+        printNonTerminal("expressionList");
+
+        var nArgs = 0;
+
+        if (!peekTokenIs(TokenType.RPAREN)) // verifica se tem pelo menos uma expressao
+        {
+            parseTerm();
+            nArgs = 1;
+        }
+
+        // procurando as demais
+        while (peekTokenIs(TokenType.COMMA)) {
+            expectPeek(TokenType.COMMA);
+            parseTerm();
+            nArgs++;
+        }
+
+        printNonTerminal("/expressionList");
+        return nArgs;
+    }
     
-    void parseLet() {
+      void parseLet() {
 
         printNonTerminal("letStatement");
         expectPeek(TokenType.LET);
@@ -130,7 +152,6 @@ public class Parser {
 
         expectPeek(TokenType.SEMICOLON);
         printNonTerminal("/letStatement");
-    }
-
+    } 
 
 }

@@ -23,11 +23,13 @@ public class Token {
             type =  "identifier";
 
         if (TokenType.isSymbol(lexeme.charAt(0)))
-            type = this.type.toString();
+            type = "symbol";
+            //type = this.type.toString();
 
         if (TokenType.isKeyword(this.type) )
-            type = this.type.toString();
-    
+            type = "keyword";
+            //type = this.type.toString();
+
 
         return "<"+ type +">" + lexeme + "</"+ type + ">";
     }
