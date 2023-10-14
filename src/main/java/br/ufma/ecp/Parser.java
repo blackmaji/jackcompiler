@@ -125,7 +125,8 @@ public class Parser {
         }
 
         expectPeek(TokenType.EQ);
-        expectPeek(TokenType.NUMBER);
+        parseTerm();
+
 
         expectPeek(TokenType.SEMICOLON);
         printNonTerminal("/letStatement");
