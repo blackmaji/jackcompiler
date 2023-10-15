@@ -169,9 +169,9 @@ public class Parser {
             case IF:
                 parseIf();
                 break;
-            /*case RETURN:
+            case RETURN:
                 parseReturn();
-                break;*/
+                break;
             case DO:
                 parseDo();
                 break;
@@ -212,6 +212,48 @@ public class Parser {
         }
         printNonTerminal("/expression");
     }
+
+    void parseParameterList() {
+        printNonTerminal("parameterList");
+
+        if (!peekTokenIs(TokenType.RPAREN))
+        {
+            expectPeek(TokenType.INT, TokenType.CHAR, TokenType.BOOLEAN, TokenType.IDENT);
+
+            expectPeek(TokenType.IDENT);
+
+            while (peekTokenIs(TokenType.COMMA)) {
+                expectPeek(TokenType.COMMA);
+                expectPeek(TokenType.INT, TokenType.CHAR, TokenType.BOOLEAN, TokenType.IDENT);
+
+                expectPeek(TokenType.IDENT);
+            }
+
+        }
+        printNonTerminal("/parameterList");
+    }
+
+    void parseSubroutineBody() {
+
+        printNonTerminal("subroutineBody");
+        expectPeek(TokenType.LBRACE);
+        parseStatements();
+        expectPeek(TokenType.RBRACE);
+        printNonTerminal("/subroutineBody");
+    }
+
+    void parseReturn() {
+        printNonTerminal("returnStatement");
+        expectPeek(TokenType.RETURN);
+        if (!peekTokenIs(TokenType.SEMICOLON)) {
+            parseExpression();
+        }
+
+        expectPeek(TokenType.SEMICOLON);
+
+        printNonTerminal("/returnStatement");
+    }
+
 
     void parseLet() {
 
@@ -268,6 +310,32 @@ public class Parser {
         expectPeek(TokenType.SEMICOLON);
 
         printNonTerminal("/doStatement");
+    }
+
+    void parseClassVarDec() {
+        printNonTerminal("classVarDec");
+        expectPeek(TokenType.FIELD, TokenType.STATIC);
+
+        expectPeek(TokenType.IDENT);
+        expectPeek(TokenType.IDENT);
+        expectPeek(TokenType.SEMICOLON);
+        printNonTerminal("/classVarDec");
+    }
+
+    void parseSubroutineDec() {
+        printNonTerminal("subroutineDec");
+        
+        expectPeek(TokenType.CONSTRUCTOR, TokenType.FUNCTION, TokenType.METHOD);
+
+        expectPeek(TokenType.VOID, TokenType.INT, TokenType.CHAR, TokenType.BOOLEAN, TokenType.IDENT);
+        expectPeek(TokenType.IDENT);
+
+        expectPeek(TokenType.LPAREN);
+        parseParameterList();
+        expectPeek(TokenType.RPAREN);
+        parseSubroutineBody();
+
+        printNonTerminal("/subroutineDec");
     }
 
 

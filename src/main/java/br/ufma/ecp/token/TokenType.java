@@ -45,7 +45,11 @@ public enum TokenType {
                 CLASS,
                 CONSTRUCTOR,
                 LET,
-                DO
+                DO,
+                FIELD,
+                INT,
+                RETURN,
+                THIS
             );
             return keywords.contains(type);
     }
