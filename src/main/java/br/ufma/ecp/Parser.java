@@ -111,45 +111,35 @@ public class Parser {
         printNonTerminal("/term");
       }
 
-      int parseExpressionList() {
-        printNonTerminal("expressionList");
+    static public boolean isOperator(String op) {
+        return "+-*/<>=~&|".contains(op);
+   }
 
-        var nArgs = 0;
-
-        if (!peekTokenIs(TokenType.RPAREN)) // verifica se tem pelo menos uma expressao
-        {
+    void parseExpression() {
+        printNonTerminal("expression");
+        parseTerm ();
+        while (isOperator(peekToken.lexeme)) {
+            expectPeek(peekToken.type);
             parseTerm();
-            nArgs = 1;
         }
-
-        // procurando as demais
-        while (peekTokenIs(TokenType.COMMA)) {
-            expectPeek(TokenType.COMMA);
-            parseTerm();
-            nArgs++;
-        }
-
-        printNonTerminal("/expressionList");
-        return nArgs;
+        printNonTerminal("/expression");
     }
-    
-      void parseLet() {
+
+    void parseLet() {
 
         printNonTerminal("letStatement");
         expectPeek(TokenType.LET);
         expectPeek(TokenType.IDENT);
 
-        if (peekTokenIs(TokenType.LBRACKET)) { // array
+        if (peekTokenIs(TokenType.LBRACKET)) {
             expectPeek(TokenType.LBRACKET);
-    
+            parseExpression();
             expectPeek(TokenType.RBRACKET);
 
         }
 
         expectPeek(TokenType.EQ);
-        parseTerm();
-
-
+        parseExpression();
         expectPeek(TokenType.SEMICOLON);
         printNonTerminal("/letStatement");
     } 
