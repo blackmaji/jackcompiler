@@ -87,26 +87,37 @@ public class Parser {
     void parseTerm() {
         printNonTerminal("term");
         switch (peekToken.type) {
-          case NUMBER:
-            expectPeek(TokenType.NUMBER);
-            break;
-          case STRING:
-            expectPeek(TokenType.STRING);
-            break;
-          case FALSE:
-          case NULL:
-          case TRUE:
-            expectPeek(TokenType.FALSE, TokenType.NULL, TokenType.TRUE);
-            break;
-          case THIS:
-            expectPeek(TokenType.THIS);
-            break;
-          case IDENT:
-            expectPeek(TokenType.IDENT);
-            break;
+            case NUMBER:
+                expectPeek(TokenType.NUMBER);
+                break;
+            case STRING:
+                expectPeek(TokenType.STRING);
+                break;
+            case FALSE:
+            case NULL:
+            case TRUE:
+                expectPeek(TokenType.FALSE, TokenType.NULL, TokenType.TRUE);
+                break;
+            case THIS:
+                expectPeek(TokenType.THIS);
+                break;
+            case IDENT:
+                expectPeek(TokenType.IDENT);
 
-          default:
-            throw error(peekToken, "term expected");
+                if (peekTokenIs(TokenType.LPAREN) || peekTokenIs(TokenType.DOT)) {
+                    parseSubroutineCall();
+                } else { 
+                    if (peekTokenIs(TokenType.LBRACKET)) {
+                        expectPeek(TokenType.LBRACKET);
+                        parseExpression();
+
+                        expectPeek(TokenType.RBRACKET);
+                    }
+                }
+                break;
+
+            default:
+                throw error(peekToken, "term expected");
         }
     
         printNonTerminal("/term");
@@ -154,11 +165,11 @@ public class Parser {
                 break;
             /*case WHILE:
                 parseWhile();
-                break;
+                break;*/
             case IF:
                 parseIf();
                 break;
-            case RETURN:
+            /*case RETURN:
                 parseReturn();
                 break;*/
             case DO:
@@ -218,6 +229,7 @@ public class Parser {
         expectPeek(TokenType.EQ);
         parseExpression();
         expectPeek(TokenType.SEMICOLON);
+
         printNonTerminal("/letStatement");
     }
 
