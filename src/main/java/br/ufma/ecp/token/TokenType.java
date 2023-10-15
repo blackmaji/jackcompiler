@@ -44,7 +44,8 @@ public enum TokenType {
                 IF,
                 CLASS,
                 CONSTRUCTOR,
-                LET
+                LET,
+                DO
             );
             return keywords.contains(type);
     }

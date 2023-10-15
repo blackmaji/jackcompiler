@@ -14,7 +14,7 @@ public class App
     {
 
     
-        String input = "let square = Square.new(0, 0, 30);";
+        String input = "if (direction = 1) { do square.moveUp(); }";
         Scanner scan = new Scanner (input.getBytes());
         for (Token tk = scan.nextToken(); tk.type != EOF; tk = scan.nextToken()) {
             System.out.println(tk);

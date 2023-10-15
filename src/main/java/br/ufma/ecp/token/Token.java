@@ -30,8 +30,7 @@ public class Token {
             type = "keyword";
             //type = this.type.toString();
 
-
-        return "<"+ type +">" + lexeme + "</"+ type + ">";
+        return "<"+ type +"> " + lexeme + " </"+ type + ">";
     }
     
 }
