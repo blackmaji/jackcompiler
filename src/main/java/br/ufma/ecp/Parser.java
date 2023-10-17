@@ -26,6 +26,7 @@ public class Parser {
 
 
    public void parse () {
+        parseClass();
     }
 
     // funções auxiliares
@@ -336,6 +337,26 @@ public class Parser {
         parseSubroutineBody();
 
         printNonTerminal("/subroutineDec");
+    }
+
+    void parseClass() {
+        printNonTerminal("class");
+        expectPeek(TokenType.CLASS);
+        expectPeek(TokenType.IDENT);
+
+        expectPeek(TokenType.LBRACE);
+
+        while (peekTokenIs(TokenType.STATIC) || peekTokenIs(TokenType.FIELD)) {
+            parseClassVarDec();
+        }
+
+        while (peekTokenIs(TokenType.FUNCTION) || peekTokenIs(TokenType.CONSTRUCTOR) || peekTokenIs(TokenType.METHOD)) {
+            parseSubroutineDec();
+        }
+
+        expectPeek(TokenType.RBRACE);
+
+        printNonTerminal("/class");
     }
 
 
