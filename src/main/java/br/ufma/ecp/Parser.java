@@ -203,14 +203,44 @@ public class Parser {
     static public boolean isOperator(String op) {
         return "+-*/<>=~&|".contains(op);
    }
+    public void compileOperators(TokenType type) {
+
+        if (type == TokenType.ASTERISK) {
+            vmWriter.writeCall("Math.multiply", 2);
+        } else if (type == TokenType.SLASH) {
+            vmWriter.writeCall("Math.divide", 2);
+        } else {
+            vmWriter.writeArithmetic(typeOperator(type));
+        }
+    }
+
+    private Command typeOperator(TokenType type) {
+        if (type == TokenType.PLUS)
+            return Command.ADD;
+        if (type == TokenType.MINUS)
+            return Command.SUB;
+        if (type == TokenType.LT)
+            return Command.LT;
+        if (type == TokenType.GT)
+            return Command.GT;
+        if (type == TokenType.EQ)
+            return Command.EQ;
+        if (type == TokenType.AND)
+            return Command.AND;
+        if (type == TokenType.OR)
+            return Command.OR;
+        return null;
+    }
 
 
     void parseExpression() {
         printNonTerminal("expression");
         parseTerm ();
         while (isOperator(peekToken.lexeme)) {
+            var ope = peekToken.type;
             expectPeek(peekToken.type);
             parseTerm();
+            compileOperators(ope);
         }
         printNonTerminal("/expression");
     }
