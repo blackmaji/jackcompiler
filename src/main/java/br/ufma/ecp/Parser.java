@@ -164,9 +164,9 @@ public class Parser {
             case LET:
                 parseLet();
                 break;
-            /*case WHILE:
+            case WHILE:
                 parseWhile();
-                break;*/
+                break;
             case IF:
                 parseIf();
                 break;
@@ -315,6 +315,24 @@ public class Parser {
 
         printNonTerminal("/doStatement");
     }
+
+    void parseWhile() {
+        printNonTerminal("whileStatement");
+
+        expectPeek(TokenType.WHILE);
+        expectPeek(TokenType.LPAREN);
+        parseExpression();
+
+        expectPeek(TokenType.RPAREN);
+        expectPeek(TokenType.LBRACE);
+        parseStatements();
+
+
+        expectPeek(TokenType.RBRACE);
+        printNonTerminal("/whileStatement");
+    }
+
+
 
     void parseVarDec() {
         printNonTerminal("varDec");

@@ -49,7 +49,11 @@ public enum TokenType {
                 FIELD,
                 INT,
                 RETURN,
-                THIS
+                THIS,
+                VOID,
+                VAR,
+                CHAR,
+                BOOLEAN
             );
             return keywords.contains(type);
     }
