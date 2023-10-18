@@ -96,14 +96,25 @@ public class Parser {
                 break;
             case STRING:
                 expectPeek(TokenType.STRING);
+                var strValue = currentToken.lexeme;
+                vmWriter.writePush(VMWriter.Segment.CONST, strValue.length());
+                vmWriter.writeCall("String.new", 1);
+                for (int i = 0; i < strValue.length(); i++) {
+                    vmWriter.writePush(VMWriter.Segment.CONST, strValue.charAt(i));
+                    vmWriter.writeCall("String.appendChar", 2);
+                }
                 break;
             case FALSE:
             case NULL:
             case TRUE:
                 expectPeek(TokenType.FALSE, TokenType.NULL, TokenType.TRUE);
+                vmWriter.writePush(VMWriter.Segment.CONST, 0);
+                if (currentToken.type == TokenType.TRUE)
+                    vmWriter.writeArithmetic(Command.NOT);
                 break;
             case THIS:
                 expectPeek(TokenType.THIS);
+                vmWriter.writePush(VMWriter.Segment.POINTER, 0);
                 break;
             case IDENT:
                 expectPeek(TokenType.IDENT);
@@ -120,6 +131,17 @@ public class Parser {
                 }
                 break;
 
+            case MINUS:
+            case NOT:
+                expectPeek(TokenType.MINUS, TokenType.NOT);
+                var op = currentToken.type;
+                parseTerm();
+                if (op == TokenType.MINUS)
+                    vmWriter.writeArithmetic(Command.NEG);
+                else
+                    vmWriter.writeArithmetic(Command.NOT);
+        
+                break;
             default:
                 throw error(peekToken, "term expected");
         }
@@ -235,7 +257,7 @@ public class Parser {
 
     void parseExpression() {
         printNonTerminal("expression");
-        parseTerm ();
+        parseTerm();
         while (isOperator(peekToken.lexeme)) {
             var ope = peekToken.type;
             expectPeek(peekToken.type);
