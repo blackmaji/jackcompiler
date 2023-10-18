@@ -238,6 +238,9 @@ public class Parser {
 
         printNonTerminal("subroutineBody");
         expectPeek(TokenType.LBRACE);
+        while (peekTokenIs(TokenType.VAR)) {
+            parseVarDec();
+        }
         parseStatements();
         expectPeek(TokenType.RBRACE);
         printNonTerminal("/subroutineBody");
@@ -313,12 +316,37 @@ public class Parser {
         printNonTerminal("/doStatement");
     }
 
+    void parseVarDec() {
+        printNonTerminal("varDec");
+        expectPeek(TokenType.VAR);
+
+        expectPeek(TokenType.INT, TokenType.CHAR, TokenType.BOOLEAN, TokenType.IDENT);
+
+
+        expectPeek(TokenType.IDENT);
+
+        while (peekTokenIs(TokenType.COMMA)) {
+            expectPeek(TokenType.COMMA);
+            expectPeek(TokenType.IDENT);
+        }
+
+        expectPeek(TokenType.SEMICOLON);
+        printNonTerminal("/varDec");
+    }
+
+
     void parseClassVarDec() {
         printNonTerminal("classVarDec");
         expectPeek(TokenType.FIELD, TokenType.STATIC);
 
+        expectPeek(TokenType.IDENT, TokenType.INT, TokenType.CHAR, TokenType.BOOLEAN);
         expectPeek(TokenType.IDENT);
-        expectPeek(TokenType.IDENT);
+
+        while (peekTokenIs(TokenType.COMMA)) {
+            expectPeek(TokenType.COMMA);
+            expectPeek(TokenType.IDENT);
+        }
+
         expectPeek(TokenType.SEMICOLON);
         printNonTerminal("/classVarDec");
     }
@@ -358,6 +386,5 @@ public class Parser {
 
         printNonTerminal("/class");
     }
-
 
 }
