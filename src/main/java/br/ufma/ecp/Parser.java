@@ -2,6 +2,7 @@ package br.ufma.ecp;
 
 import javax.swing.text.Segment;
 
+import br.ufma.ecp.VMWriter.*;
 import br.ufma.ecp.token.Token;
 import br.ufma.ecp.token.TokenType;
 
@@ -13,6 +14,7 @@ public class Parser {
     private Token currentToken;
     private Token peekToken;
     private StringBuilder xmlOutput = new StringBuilder();
+    private VMWriter vmWriter = new VMWriter();
 
     public Parser(byte[] input) {
         scan = new Scanner(input);
@@ -90,6 +92,7 @@ public class Parser {
         switch (peekToken.type) {
             case NUMBER:
                 expectPeek(TokenType.NUMBER);
+                vmWriter.writePush(VMWriter.Segment.CONST, Integer.parseInt(currentToken.lexeme));
                 break;
             case STRING:
                 expectPeek(TokenType.STRING);
@@ -196,8 +199,6 @@ public class Parser {
             expectPeek(TokenType.RPAREN);
         }
     }
-    
-
 
     static public boolean isOperator(String op) {
         return "+-*/<>=~&|".contains(op);
@@ -405,4 +406,7 @@ public class Parser {
         printNonTerminal("/class");
     }
 
+    public String VMOutput() {
+        return vmWriter.vmOutput();
+    }
 }

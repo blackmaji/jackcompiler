@@ -29,10 +29,11 @@ public enum TokenType {
      EOF,
 
      ILLEGAL;
-
-     static public boolean isSymbol (char c) {
+    
+    static public boolean isSymbol (char c) {
         String symbols = "{}()[].,;+-*/&|<>=~";
         return symbols.indexOf(c) > -1;
+
     }
 
 
