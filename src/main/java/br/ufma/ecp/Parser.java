@@ -15,6 +15,8 @@ public class Parser {
     private Token peekToken;
     private StringBuilder xmlOutput = new StringBuilder();
     private VMWriter vmWriter = new VMWriter();
+    private int ifLabelNum = 0 ;
+    private int whileLabelNum = 0;
 
     public Parser(byte[] input) {
         scan = new Scanner(input);
@@ -223,7 +225,7 @@ public class Parser {
     }
 
     static public boolean isOperator(String op) {
-        return "+-*/<>=~&|".contains(op);
+        return op != "" && "+-*/<>=~&|".contains(op);
    }
     public void compileOperators(TokenType type) {
 
@@ -304,9 +306,12 @@ public class Parser {
         expectPeek(TokenType.RETURN);
         if (!peekTokenIs(TokenType.SEMICOLON)) {
             parseExpression();
+        } else {
+            vmWriter.writePush(VMWriter.Segment.CONST,0);
         }
 
         expectPeek(TokenType.SEMICOLON);
+        vmWriter.writeReturn();
 
         printNonTerminal("/returnStatement");
     }
@@ -335,26 +340,38 @@ public class Parser {
     void parseIf() {
         printNonTerminal("ifStatement");
     
+        var labelTrue = "IF_TRUE" + ifLabelNum;
+        var labelFalse = "IF_FALSE" + ifLabelNum;
+        var labelEnd = "IF_END" + ifLabelNum;
+    
+        ifLabelNum++;
+        
         expectPeek(TokenType.IF);
         expectPeek(TokenType.LPAREN);
         parseExpression();
         expectPeek(TokenType.RPAREN);
     
+        vmWriter.writeIf(labelTrue);
+        vmWriter.writeGoto(labelFalse);
+        vmWriter.writeLabel(labelTrue);
+        
         expectPeek(TokenType.LBRACE);
         parseStatements();
         expectPeek(TokenType.RBRACE);
-
-        if (peekTokenIs(TokenType.ELSE))
-        {
-            expectPeek(TokenType.ELSE);
-
-            expectPeek(TokenType.LBRACE);
-
-            parseStatements();
-
-            expectPeek(TokenType.RBRACE);
+        if (peekTokenIs(TokenType.ELSE)){
+            vmWriter.writeGoto(labelEnd);
         }
-
+    
+        vmWriter.writeLabel(labelFalse);
+    
+        if (peekTokenIs(TokenType.ELSE)){
+            expectPeek(TokenType.ELSE);
+            expectPeek(TokenType.LBRACE);
+            parseStatements();
+            expectPeek(TokenType.RBRACE);
+            vmWriter.writeLabel(labelEnd);
+            }
+    
         printNonTerminal("/ifStatement");
     }
 
@@ -372,20 +389,29 @@ public class Parser {
     void parseWhile() {
         printNonTerminal("whileStatement");
 
+        var labelTrue = "WHILE_EXP" + whileLabelNum;
+        var labelFalse = "WHILE_END" + whileLabelNum;
+        whileLabelNum++;
+
+        vmWriter.writeLabel(labelTrue);
+
         expectPeek(TokenType.WHILE);
         expectPeek(TokenType.LPAREN);
         parseExpression();
+
+        vmWriter.writeArithmetic(Command.NOT);
+        vmWriter.writeIf(labelFalse);
 
         expectPeek(TokenType.RPAREN);
         expectPeek(TokenType.LBRACE);
         parseStatements();
 
+        vmWriter.writeGoto(labelTrue);
+        vmWriter.writeLabel(labelFalse); 
 
         expectPeek(TokenType.RBRACE);
         printNonTerminal("/whileStatement");
     }
-
-
 
     void parseVarDec() {
         printNonTerminal("varDec");
@@ -424,6 +450,9 @@ public class Parser {
 
     void parseSubroutineDec() {
         printNonTerminal("subroutineDec");
+
+        ifLabelNum = 0;
+        whileLabelNum = 0;
         
         expectPeek(TokenType.CONSTRUCTOR, TokenType.FUNCTION, TokenType.METHOD);
 
