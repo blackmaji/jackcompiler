@@ -232,7 +232,7 @@ public class VMWriterTest {
         String expected = """
             label WHILE_EXP0
             push constant 0
-			not
+            not
             if-goto WHILE_END0
             push constant 10
             return
