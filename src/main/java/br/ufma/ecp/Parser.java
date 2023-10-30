@@ -1,11 +1,10 @@
 package br.ufma.ecp;
 
-import javax.swing.text.Segment;
-
 import br.ufma.ecp.SymbolTable.*;
 import br.ufma.ecp.VMWriter.*;
 import br.ufma.ecp.token.Token;
 import br.ufma.ecp.token.TokenType;
+import br.ufma.ecp.VMWriter.Segment;;
 
 public class Parser {
 
@@ -123,6 +122,7 @@ public class Parser {
                 break;
             case IDENT:
                 expectPeek(TokenType.IDENT);
+                Symbol sym = symTable.resolve(currentToken.lexeme);
 
                 if (peekTokenIs(TokenType.LPAREN) || peekTokenIs(TokenType.DOT)) {
                     parseSubroutineCall();
@@ -130,8 +130,9 @@ public class Parser {
                     if (peekTokenIs(TokenType.LBRACKET)) {
                         expectPeek(TokenType.LBRACKET);
                         parseExpression();
-
                         expectPeek(TokenType.RBRACKET);
+                    }else{
+                        vmWriter.writePush(kind2Segment(sym.kind()), sym.index());
                     }
                 }
                 break;
@@ -336,6 +337,8 @@ public class Parser {
 
     void parseLet() {
 
+        var isArray = false;
+
         printNonTerminal("letStatement");
         expectPeek(TokenType.LET);
         expectPeek(TokenType.IDENT);
@@ -344,11 +347,20 @@ public class Parser {
             expectPeek(TokenType.LBRACKET);
             parseExpression();
             expectPeek(TokenType.RBRACKET);
-
+            
+            isArray = true;
         }
 
         expectPeek(TokenType.EQ);
         parseExpression();
+
+        if (isArray) {
+    
+
+        } else {
+            Symbol symbol;
+            vmWriter.writePop(kind2Segment(symbol.kind(), symbol.index()));
+        }
         expectPeek(TokenType.SEMICOLON);
 
         printNonTerminal("/letStatement");
@@ -537,5 +549,17 @@ public class Parser {
 
     public String VMOutput() {
         return vmWriter.vmOutput();
+    }
+
+    private VMWriter.Segment kind2Segment(Kind kind) {
+        if (kind == Kind.STATIC)
+            return VMWriter.Segment.STATIC;
+        if (kind == Kind.FIELD)
+            return VMWriter.Segment.THIS;
+        if (kind == Kind.VAR)
+            return VMWriter.Segment.LOCAL;
+        if (kind == Kind.ARG)
+            return VMWriter.Segment.ARG;
+        return null;
     }
 }
