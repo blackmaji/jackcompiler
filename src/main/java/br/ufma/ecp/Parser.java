@@ -4,7 +4,7 @@ import br.ufma.ecp.SymbolTable.*;
 import br.ufma.ecp.VMWriter.*;
 import br.ufma.ecp.token.Token;
 import br.ufma.ecp.token.TokenType;
-import br.ufma.ecp.VMWriter.Segment;;
+import br.ufma.ecp.VMWriter.Segment;
 
 public class Parser {
 
@@ -343,6 +343,8 @@ public class Parser {
         expectPeek(TokenType.LET);
         expectPeek(TokenType.IDENT);
 
+        var symbol = symTable.resolve(currentToken.lexeme);
+
         if (peekTokenIs(TokenType.LBRACKET)) {
             expectPeek(TokenType.LBRACKET);
             parseExpression();
@@ -358,11 +360,10 @@ public class Parser {
     
 
         } else {
-            Symbol symbol;
-            vmWriter.writePop(kind2Segment(symbol.kind(), symbol.index()));
+            vmWriter.writePop(kind2Segment(symbol.kind()), symbol.index());
         }
-        expectPeek(TokenType.SEMICOLON);
 
+        expectPeek(TokenType.SEMICOLON);
         printNonTerminal("/letStatement");
     }
 
@@ -551,7 +552,7 @@ public class Parser {
         return vmWriter.vmOutput();
     }
 
-    private VMWriter.Segment kind2Segment(Kind kind) {
+    private Segment kind2Segment(Kind kind) {
         if (kind == Kind.STATIC)
             return VMWriter.Segment.STATIC;
         if (kind == Kind.FIELD)
