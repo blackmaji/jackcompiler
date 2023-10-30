@@ -4,7 +4,6 @@ import br.ufma.ecp.SymbolTable.*;
 import br.ufma.ecp.VMWriter.*;
 import br.ufma.ecp.token.Token;
 import br.ufma.ecp.token.TokenType;
-import br.ufma.ecp.VMWriter.Segment;
 
 public class Parser {
 
@@ -130,7 +129,13 @@ public class Parser {
                     if (peekTokenIs(TokenType.LBRACKET)) {
                         expectPeek(TokenType.LBRACKET);
                         parseExpression();
+                        vmWriter.writePush(kind2Segment(sym.kind()), sym.index());
+                        vmWriter.writeArithmetic(Command.ADD);
+
                         expectPeek(TokenType.RBRACKET);
+                        vmWriter.writePop(Segment.POINTER, 1);
+                        vmWriter.writePush(Segment.THAT, 0);
+                        
                     }else{
                         vmWriter.writePush(kind2Segment(sym.kind()), sym.index());
                     }
@@ -348,6 +353,10 @@ public class Parser {
         if (peekTokenIs(TokenType.LBRACKET)) {
             expectPeek(TokenType.LBRACKET);
             parseExpression();
+
+            vmWriter.writePush(kind2Segment(symbol.kind()), symbol.index());
+            vmWriter.writeArithmetic(Command.ADD);
+            
             expectPeek(TokenType.RBRACKET);
             
             isArray = true;
@@ -357,8 +366,10 @@ public class Parser {
         parseExpression();
 
         if (isArray) {
-    
-
+            vmWriter.writePop(Segment.TEMP, 0);
+            vmWriter.writePop(Segment.POINTER, 1);
+            vmWriter.writePush(Segment.TEMP, 0);
+            vmWriter.writePop(Segment.THAT, 0);
         } else {
             vmWriter.writePop(kind2Segment(symbol.kind()), symbol.index());
         }
