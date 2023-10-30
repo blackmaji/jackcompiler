@@ -135,7 +135,7 @@ public class Parser {
                         expectPeek(TokenType.RBRACKET);
                         vmWriter.writePop(Segment.POINTER, 1);
                         vmWriter.writePush(Segment.THAT, 0);
-                        
+
                     }else{
                         vmWriter.writePush(kind2Segment(sym.kind()), sym.index());
                     }
@@ -219,18 +219,34 @@ public class Parser {
 
     void parseSubroutineCall() {
         int nArgs = 0;
-    
+        
+        var ident = currentToken.lexeme;
+        var symbol = symTable.resolve(ident); // classe ou objeto
+        var functionName = ident + ".";
+
         if (peekTokenIs(TokenType.LPAREN)) {
             expectPeek(TokenType.LPAREN);
+            vmWriter.writePush(Segment.POINTER, 0);
             nArgs = parseExpressionList() + 1;
             expectPeek(TokenType.RPAREN);
+            functionName = className + "." + ident;
         } else {
             expectPeek(TokenType.DOT);
             expectPeek(TokenType.IDENT);
+
+            if (symbol != null) {
+                functionName = symbol.type() + "." + currentToken.lexeme;
+                vmWriter.writePush(kind2Segment(symbol.kind()), symbol.index());
+                nArgs = 1;
+            } else {
+                functionName += currentToken.lexeme;
+            }
+
             expectPeek(TokenType.LPAREN);
             nArgs += parseExpressionList();
             expectPeek(TokenType.RPAREN);
         }
+        vmWriter.writeCall(functionName, nArgs);
     }
 
     static public boolean isOperator(String op) {
