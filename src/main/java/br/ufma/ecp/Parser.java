@@ -95,15 +95,15 @@ public class Parser {
         switch (peekToken.type) {
             case NUMBER:
                 expectPeek(TokenType.NUMBER);
-                vmWriter.writePush(VMWriter.Segment.CONST, Integer.parseInt(currentToken.lexeme));
+                vmWriter.writePush(Segment.CONST, Integer.parseInt(currentToken.lexeme));
                 break;
             case STRING:
                 expectPeek(TokenType.STRING);
                 var strValue = currentToken.lexeme;
-                vmWriter.writePush(VMWriter.Segment.CONST, strValue.length());
+                vmWriter.writePush(Segment.CONST, strValue.length());
                 vmWriter.writeCall("String.new", 1);
                 for (int i = 0; i < strValue.length(); i++) {
-                    vmWriter.writePush(VMWriter.Segment.CONST, strValue.charAt(i));
+                    vmWriter.writePush(Segment.CONST, strValue.charAt(i));
                     vmWriter.writeCall("String.appendChar", 2);
                 }
                 break;
@@ -111,52 +111,58 @@ public class Parser {
             case NULL:
             case TRUE:
                 expectPeek(TokenType.FALSE, TokenType.NULL, TokenType.TRUE);
-                vmWriter.writePush(VMWriter.Segment.CONST, 0);
-                if (currentToken.type == TokenType.TRUE)
+                vmWriter.writePush(Segment.CONST, 0);
+                if (currentToken.type == TokenType.TRUE) {
                     vmWriter.writeArithmetic(Command.NOT);
+                }
                 break;
             case THIS:
                 expectPeek(TokenType.THIS);
-                vmWriter.writePush(VMWriter.Segment.POINTER, 0);
+                vmWriter.writePush(Segment.POINTER, 0);
                 break;
-            case IDENT:
+                case IDENT:
                 expectPeek(TokenType.IDENT);
-                Symbol sym = symTable.resolve(currentToken.lexeme);
 
+                Symbol sym = symTable.resolve(currentToken.lexeme);
+                
                 if (peekTokenIs(TokenType.LPAREN) || peekTokenIs(TokenType.DOT)) {
                     parseSubroutineCall();
                 } else { 
-                    if (peekTokenIs(TokenType.LBRACKET)) {
+                    if (peekTokenIs(TokenType.LBRACKET)) { 
                         expectPeek(TokenType.LBRACKET);
-                        parseExpression();
+                        parseExpression();     
                         vmWriter.writePush(kind2Segment(sym.kind()), sym.index());
                         vmWriter.writeArithmetic(Command.ADD);
 
-                        expectPeek(TokenType.RBRACKET);
-                        vmWriter.writePop(Segment.POINTER, 1);
-                        vmWriter.writePush(Segment.THAT, 0);
-
-                    }else{
+                        expectPeek(TokenType.RBRACKET);    
+                        vmWriter.writePop(Segment.POINTER, 1); 
+                        vmWriter.writePush(Segment.THAT, 0);   
+                          
+                    } else {
                         vmWriter.writePush(kind2Segment(sym.kind()), sym.index());
                     }
                 }
                 break;
-
+            case LPAREN:
+                expectPeek(TokenType.LPAREN);
+                parseExpression();
+                expectPeek(TokenType.RPAREN);
+                break;
             case MINUS:
             case NOT:
                 expectPeek(TokenType.MINUS, TokenType.NOT);
                 var op = currentToken.type;
                 parseTerm();
-                if (op == TokenType.MINUS)
+                if (op == TokenType.MINUS){
                     vmWriter.writeArithmetic(Command.NEG);
-                else
+                } else {
                     vmWriter.writeArithmetic(Command.NOT);
-        
+                }
                 break;
             default:
                 throw error(peekToken, "term expected");
         }
-    
+
         printNonTerminal("/term");
     }
 

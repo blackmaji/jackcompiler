@@ -66,7 +66,7 @@ public class App
                 if (f.isFile() && f.getName().endsWith(".jack")) {
 
                     var inputFileName = f.getAbsolutePath();
-                    var pos = inputFileName.indexOf('.');
+                    var pos = inputFileName.lastIndexOf('.');
                     var outputFileName = inputFileName.substring(0, pos) + ".vm";
                     
                     System.out.println("compiling " +  inputFileName);
@@ -85,7 +85,7 @@ public class App
                 System.exit(1);
             } else {
                 var inputFileName = file.getAbsolutePath();
-                var pos = inputFileName.indexOf('.');
+                var pos = inputFileName.lastIndexOf('.');
                 var outputFileName = inputFileName.substring(0, pos) + ".vm";
                 
                 System.out.println("compiling " +  inputFileName);
